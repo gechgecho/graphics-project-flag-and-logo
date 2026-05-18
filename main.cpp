@@ -23,6 +23,10 @@ static const double SVG_H = 192.0;
 static float waveAngle = 0.0f;
 static float waveSpeed = 0.25f;
 static bool isWaving = true;
+static float xamppRotation = 0.0f;
+static float rotationSpeed = 1.0f;
+static bool isRotating = false;
+static bool rotationDirection = 1;
 
 struct Pt { double x, y; };
 
@@ -447,6 +451,7 @@ static void renderXAMPP()
     glPushMatrix();
 
     glTranslatef(1.0f, 0.0f, 0.0f);
+    glRotatef(xamppRotation, 0.0f, 0.0f, 1.0f);
     glScalef(g_zoom, g_zoom, 1.f);
 
     glColor3f(0.984f, 0.478f, 0.141f);
@@ -494,7 +499,7 @@ static void display()
 
     glColor3f(0.2f, 0.2f, 0.3f);
     glRasterPos2f(10.0f, 485.0f);
-    const char* info = "ALGERIAN FLAG (LEFT) | XAMPP LOGO (RIGHT) | +/- Zoom XAMPP | F:Toggle Wave | R:Reset Wave | ESC:Exit";
+    const char* info = "ALGERIAN FLAG (LEFT) | XAMPP LOGO (RIGHT) | +/- Zoom | F:Toggle Wave | R:Start Rotation | P:Pause Rotation | ESC:Exit";
     for(const char* c = info; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, *c);
     }
@@ -526,7 +531,13 @@ static void keyboard(unsigned char k, int, int)
     case '+': case '=': g_zoom = std::min(2.0f, g_zoom * 1.1f);  glutPostRedisplay(); break;
     case '-': case '_': g_zoom = std::max(0.3f, g_zoom / 1.1f);  glutPostRedisplay(); break;
     case 'f': case 'F': isWaving = !isWaving; break;
-    case 'r': case 'R': waveAngle = 0.0f; isWaving = true; break;
+    case 'r': case 'R':
+        if(!isRotating) {
+            isRotating = true;
+            xamppRotation = 0.0f;
+        }
+        break;
+    case 'p': case 'P': isRotating = false; break;
     case 27:  exit(0);
     }
 }
@@ -535,6 +546,10 @@ static void updateAnimation(int value) {
     if(isWaving) {
         waveAngle += waveSpeed;
         if(waveAngle > 2 * M_PI) waveAngle -= 2 * M_PI;
+    }
+    if(isRotating) {
+        xamppRotation += rotationSpeed;
+        if(xamppRotation > 360.0f) xamppRotation -= 360.0f;
     }
     glutPostRedisplay();
     glutTimerFunc(16, updateAnimation, 0);
