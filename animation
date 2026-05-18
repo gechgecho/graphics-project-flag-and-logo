@@ -1,0 +1,55 @@
+// =========================
+// 1. animation.h
+// =========================
+
+#ifndef ANIMATION_H
+#define ANIMATION_H
+
+#include <cmath>
+#include <GL/glut.h>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
+extern float waveAngle;
+extern float waveSpeed;
+extern bool isWaving;
+
+float getWaveOffset(float x, float y, float time);
+void updateAnimation(int value);
+
+#endif
+
+
+// =========================
+// 2. animation.cpp
+// =========================
+
+#include "animation.h"
+
+float waveAngle = 0.0f;
+float waveSpeed = 0.25f;
+bool isWaving = true;
+
+float getWaveOffset(float x, float y, float time) {
+
+    float t = (x - 150.0f) / 500.0f;
+
+    if (t < 0) t = 0;
+    if (t > 1) t = 1;
+
+    return sin(x * 0.03f + time) * 10.0f * t;
+}
+
+void updateAnimation(int value) {
+    if(isWaving) {
+        waveAngle += waveSpeed;
+
+        if(waveAngle > 2 * M_PI)
+            waveAngle -= 2 * M_PI;
+    }
+
+    glutPostRedisplay();
+    glutTimerFunc(16, updateAnimation, 0);
+}
